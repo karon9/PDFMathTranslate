@@ -1,0 +1,11 @@
+services:
+  pdf-math-translate:
+    container_name: pdf-math-translate
+    image: pdf-math-translate
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    ports:
+      - "7860:7860"
