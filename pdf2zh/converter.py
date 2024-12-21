@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from pdfminer.pdfinterp import PDFGraphicState, PDFResourceManager
 from pdfminer.pdffont import PDFCIDFont
 from pdfminer.converter import PDFConverter
@@ -26,10 +28,13 @@ from pdf2zh.translator import (
     OllamaTranslator,
     OpenAITranslator,
     ZhipuTranslator,
+    ModelScopeTranslator,
     SiliconTranslator,
     GeminiTranslator,
     AzureTranslator,
     TencentTranslator,
+    DifyTranslator,
+    AnythingLLMTranslator,
 )
 from pymupdf import Font
 
@@ -130,6 +135,8 @@ class TranslateConverter(PDFConverterEx):
         service: str = "",
         resfont: str = "",
         noto: Font = None,
+        envs: Dict = None,
+        prompt: List = None,
     ) -> None:
         super().__init__(rsrcmgr)
         self.vfont = vfont
@@ -143,9 +150,9 @@ class TranslateConverter(PDFConverterEx):
         service_name = param[0]
         service_model = param[1] if len(param) > 1 else None
         for translator in [GoogleTranslator, BingTranslator, DeepLTranslator, DeepLXTranslator, OllamaTranslator, AzureOpenAITranslator,
-                           OpenAITranslator, ZhipuTranslator, SiliconTranslator, GeminiTranslator, AzureTranslator, TencentTranslator]:
+                           OpenAITranslator, ZhipuTranslator, ModelScopeTranslator, SiliconTranslator, GeminiTranslator, AzureTranslator, TencentTranslator, DifyTranslator, AnythingLLMTranslator]:
             if service_name == translator.name:
-                self.translator = translator(lang_in, lang_out, service_model)
+                self.translator = translator(lang_in, lang_out, service_model, envs=envs, prompt=prompt)
         if not self.translator:
             raise ValueError("Unsupported translation service")
 
@@ -171,8 +178,8 @@ class TranslateConverter(PDFConverterEx):
         ops: str = ""                   # 渲染结果
 
         def vflag(font: str, char: str):    # 匹配公式（和角标）字体
-            if isinstance(font, bytes):     # hack 嵌入的 china-ss 会变成 b'Song'
-                font = font.decode()
+            if isinstance(font, bytes):     # 不一定能 decode，直接转 str
+                font = str(font)
             font = font.split("+")[-1]      # 字体名截断
             if re.match(r"\(cid:", char):
                 return True
@@ -273,7 +280,7 @@ class TranslateConverter(PDFConverterEx):
                     if (                                                    # 根据当前字符修正段落属性
                         child.size > pstk[-1].size / 0.79                   # 1. 当前字符显著比段落字体大
                         or len(sstk[-1].strip()) == 1                       # 2. 当前字符为段落第二个文字（考虑首字母放大的情况）
-                    ):
+                    ) and child.get_text() != " ":                          # 3. 当前字符不是空格
                         pstk[-1].y -= child.size - pstk[-1].size            # 修正段落初始纵坐标，假设两个不同大小字符的上边界对齐
                         pstk[-1].size = child.size
                     sstk[-1] += child.get_text()

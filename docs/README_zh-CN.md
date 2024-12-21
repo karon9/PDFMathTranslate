@@ -1,6 +1,6 @@
 <div align="center">
 
-[English](README.md) | 简体中文 | [日本語](README_ja-JP.md)
+[English](../README.md) | 简体中文 | [日本語](README_ja-JP.md)
 
 <img src="./docs/images/banner.png" width="320px"  alt="PDF2ZH"/>  
 
@@ -19,8 +19,12 @@
     <img src="https://img.shields.io/github/license/Byaidu/PDFMathTranslate"/></a>
   <a href="https://huggingface.co/spaces/reycn/PDFMathTranslate-Docker">
     <img src="https://img.shields.io/badge/%F0%9F%A4%97-Online%20Demo-FF9E0D"/></a>
+  <a href="https://www.modelscope.cn/studios/AI-ModelScope/PDFMathTranslate">
+    <img src="https://img.shields.io/badge/ModelScope-Demo-blue"></a>
   <a href="https://github.com/Byaidu/PDFMathTranslate/pulls">
     <img src="https://img.shields.io/badge/contributions-welcome-green"/></a>
+  <a href="https://gitcode.com/Byaidu/PDFMathTranslate/overview">
+    <img src="https://gitcode.com/Byaidu/PDFMathTranslate/star/badge.svg"></a>
   <a href="https://t.me/+Z9_SgnxmsmA5NzBl">
     <img src="https://img.shields.io/badge/Telegram-2CA5E0?style=flat-squeare&logo=telegram&logoColor=white"/></a>
 </p>
@@ -61,14 +65,19 @@
 
 你可以立即尝试 [免费公共服务](https://pdf2zh.com/) 而无需安装
 
-### Hugging Face 在线演示
+### 在线演示
 
-你可以立即尝试 [在 HuggingFace 上的在线演示](https://huggingface.co/spaces/reycn/PDFMathTranslate-Docker) 而无需安装
+你可以立即尝试 [在 HuggingFace 上的在线演示](https://huggingface.co/spaces/reycn/PDFMathTranslate-Docker)和[魔搭的在线演示](https://www.modelscope.cn/studios/AI-ModelScope/PDFMathTranslate)而无需安装
 请注意，演示的计算资源有限，因此请避免滥用
 
 <h2 id="install">安装和使用</h2>
 
 我们提供了四种使用该项目的方法：[命令行工具](#cmd)、[便携式安装](#portable)、[图形交互界面](#gui) 和 [容器化部署](#docker).
+
+pdf2zh的运行依赖于额外模型(`wybxc/DocLayout-YOLO-DocStructBench-onnx`)，该模型在魔搭上也可以找到。如果你在启动时下载该模型遇到问题，请使用如下环境变量：
+```shell
+set HF_ENDPOINT=https://hf-mirror.com
+```
 
 <h3 id="cmd">方法一、命令行工具</h3>
 
@@ -89,7 +98,7 @@
 
 无需预先安装 Python 环境
 
-下载 [setup.bat](https://raw.githubusercontent.com/Byaidu/PDFMathTranslate/refs/heads/main/setup.bat) 并双击运行
+下载 [setup.bat](https://raw.githubusercontent.com/Byaidu/PDFMathTranslate/refs/heads/main/script/setup.bat) 并双击运行
 
 <h3 id="gui">方法三、图形交互界面</h3>
 
@@ -164,7 +173,9 @@
 | `-t`  | [多线程](#threads) | `pdf2zh example.pdf -t 1` |
 | `-o`  | 输出目录 | `pdf2zh example.pdf -o output` |
 | `-f`, `-c` | [例外规则](#exceptions) | `pdf2zh example.pdf -f "(MS.*)"` |
-| `--share` | 获取 gradio 公开链接 | `pdf2zh -i --share` |
+| `--share` | [获取 gradio 公开链接] | `pdf2zh -i --share` |
+| `--authorized` | [添加网页认证和自定义认证页] | `pdf2zh -i --authorized users.txt [auth.html]` |
+| `--prompt` | [使用自定义的大模型prompt] | `pdf2zh --prompt [prompt.txt]` |
 
 <h3 id="partial">全文或部分文档翻译</h3>
 
@@ -196,16 +207,19 @@ pdf2zh example.pdf -li en -lo ja
 |-|-|-|-|-|
 |**Google (Default)**|`google`|None|N/A|None|
 |**Bing**|`bing`|None|N/A|None|
-|**DeepL**|`deepl`|`DEEPL_SERVER_URL`,`DEEPL_AUTH_KEY`|`https://api.deepl.com`, `[Your Key]`|See [DeepL](https://support.deepl.com/hc/en-us/articles/360020695820-API-Key-for-DeepL-s-API)|
+|**DeepL**|`deepl`|`DEEPL_AUTH_KEY`|`[Your Key]`|See [DeepL](https://support.deepl.com/hc/en-us/articles/360020695820-API-Key-for-DeepL-s-API)|
 |**DeepLX**|`deeplx`|`DEEPLX_ENDPOINT`|`https://api.deepl.com/translate`|See [DeepLX](https://github.com/OwO-Network/DeepLX)|
 |**Ollama**|`ollama`|`OLLAMA_HOST`, `OLLAMA_MODEL`|`http://127.0.0.1:11434`, `gemma2`|See [Ollama](https://github.com/ollama/ollama)|
 |**OpenAI**|`openai`|`OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL`|`https://api.openai.com/v1`, `[Your Key]`, `gpt-4o-mini`|See [OpenAI](https://platform.openai.com/docs/overview)|
 |**AzureOpenAI**|`azure-openai`|`AZURE_OPENAI_BASE_URL`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_MODEL`|`[Your Endpoint]`, `[Your Key]`, `gpt-4o-mini`|See [Azure OpenAI](https://learn.microsoft.com/zh-cn/azure/ai-services/openai/chatgpt-quickstart?tabs=command-line%2Cjavascript-keyless%2Ctypescript-keyless%2Cpython&pivots=programming-language-python)|
 |**Zhipu**|`zhipu`|`ZHIPU_API_KEY`, `ZHIPU_MODEL`|`[Your Key]`, `glm-4-flash`|See [Zhipu](https://open.bigmodel.cn/dev/api/thirdparty-frame/openai-sdk)|
+| **ModelScope**       | `ModelScope`   |`MODELSCOPE_API_KEY`, `MODELSCOPE_MODEL`|`[Your Key]`, `Qwen/Qwen2.5-Coder-32B-Instruct`| See [ModelScope](https://www.modelscope.cn/docs/model-service/API-Inference/intro)|
 |**Silicon**|`silicon`|`SILICON_API_KEY`, `SILICON_MODEL`|`[Your Key]`, `Qwen/Qwen2.5-7B-Instruct`|See [SiliconCloud](https://docs.siliconflow.cn/quickstart)|
 |**Gemini**|`gemini`|`GEMINI_API_KEY`, `GEMINI_MODEL`|`[Your Key]`, `gemini-1.5-flash`|See [Gemini](https://ai.google.dev/gemini-api/docs/openai)|
 |**Azure**|`azure`|`AZURE_ENDPOINT`, `AZURE_API_KEY`|`https://api.translator.azure.cn`, `[Your Key]`|See [Azure](https://docs.azure.cn/en-us/ai-services/translator/text-translation-overview)|
 |**Tencent**|`tencent`|`TENCENTCLOUD_SECRET_ID`, `TENCENTCLOUD_SECRET_KEY`|`[Your ID]`, `[Your Key]`|See [Tencent](https://www.tencentcloud.com/products/tmt?from_qcintl=122110104)|
+|**Dify**|`dify`|`DIFY_API_URL`, `DIFY_API_KEY`|`[Your DIFY URL]`, `[Your Key]`|See [Dify](https://github.com/langgenius/dify),Three variables, lang_out, lang_in, and text, need to be defined in Dify's workflow input.|
+|**AnythingLLM**|`anythingllm`|`AnythingLLM_URL`, `AnythingLLM_APIKEY`|`[Your AnythingLLM URL]`, `[Your Key]`|See [anything-llm](https://github.com/Mintplex-Labs/anything-llm)|
 
 使用 `-s service` 或 `-s service:model` 指定翻译服务:
 
@@ -241,6 +255,37 @@ pdf2zh example.pdf -f "(CM[^R]|(MS|XY|MT|BL|RM|EU|LA|RS)[A-Z]|LINE|LCIRCLE|TeX-|
 ```bash
 pdf2zh example.pdf -t 1
 ```
+<h3 id="prompt">自定义大模型prompt</h3>
+
+使用 `--prompt` 指定使用大模型翻译时使用的 Prompt 文件。
+
+```bash
+pdf2zh example.pdf -pr prompt.txt
+```
+
+
+示例 `prompt.txt` 文件
+
+```
+[
+    {
+        "role": "system",
+        "content": "You are a professional,authentic machine translation engine.",
+    },
+    {
+        "role": "user",
+        "content": "Translate the following markdown source text to ${lang_out}. Keep the formula notation {{v*}} unchanged. Output translation directly without any additional text.\nSource Text: ${text}\nTranslated Text:",
+    },
+]
+```
+
+
+自定义 Prompt 文件中，可以使用三个内置变量用来传递参数。
+|**变量名**|**说明**|
+|-|-|
+|`lang_in`|输入的语言|
+|`lang_out`|输出的语言|
+|`text`|需要翻译的文本|
 
 <h2 id="todo">API</h2>
 
@@ -264,8 +309,7 @@ pdf2zh --celery worker
 ```
 
 ```bash
-curl http://localhost:11008/v1/translate -F "file=@example.pdf" -F "data={\"lang_in\":\"en\",\"l
-ang_out\":\"zh\",\"service\":\"google\",\"thread\":4}"
+curl http://localhost:11008/v1/translate -F "file=@example.pdf" -F "data={\"lang_in\":\"en\",\"lang_out\":\"zh\",\"service\":\"google\",\"thread\":4}"
 {"id":"d9894125-2f4e-45ea-9d93-1a9068d2045a"}
 
 curl http://localhost:11008/v1/translate/d9894125-2f4e-45ea-9d93-1a9068d2045a
@@ -288,6 +332,8 @@ curl http://localhost:11008/v1/translate/d9894125-2f4e-45ea-9d93-1a9068d2045a -X
 - 文档解析：[Pdfminer.six](https://github.com/pdfminer/pdfminer.six)
 
 - 文档提取：[MinerU](https://github.com/opendatalab/MinerU)
+
+- 文档预览：[Gradio PDF](https://github.com/freddyaboulton/gradio-pdf)
 
 - 多线程翻译：[MathTranslate](https://github.com/SUSYUSTC/MathTranslate)
 

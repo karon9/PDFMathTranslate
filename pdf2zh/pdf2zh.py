@@ -6,9 +6,11 @@ output it to plain text, html, xml or tags.
 from __future__ import annotations
 
 import argparse
-import sys
 import logging
+import sys
+from string import Template
 from typing import List, Optional
+
 from pdf2zh import __version__, log
 from pdf2zh.high_level import translate
 
@@ -115,6 +117,24 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="celery",
     )
+    parse_params.add_argument(
+        "--authorized",
+        type=str,
+        nargs="+",
+        help="user name and password.",
+    )
+    parse_params.add_argument(
+        "--prompt",
+        type=str,
+        help="user custom prompt.",
+    )
+
+    parse_params.add_argument(
+        "--compatible",
+        "-cp",
+        action="store_true",
+        help="Convert the PDF file into PDF/A format to improve compatibility.",
+    )
 
     return parser
 
@@ -146,7 +166,7 @@ def main(args: Optional[List[str]] = None) -> int:
     if parsed_args.interactive:
         from pdf2zh.gui import setup_gui
 
-        setup_gui(parsed_args.share)
+        setup_gui(parsed_args.share, parsed_args.authorized)
         return 0
 
     if parsed_args.flask:
@@ -160,6 +180,14 @@ def main(args: Optional[List[str]] = None) -> int:
 
         celery_app.start(argv=sys.argv[2:])
         return 0
+
+    if parsed_args.prompt:
+        try:
+            with open(parsed_args.prompt, "r", encoding="utf-8") as file:
+                content = file.read()
+            parsed_args.prompt = Template(content)
+        except Exception:
+            raise ValueError("prompt error.")
 
     translate(**vars(parsed_args))
     return 0

@@ -1,6 +1,6 @@
 <div align="center">
 
-[English](README.md) | [简体中文](README_zh-CN.md) | 日本語
+[English](../README.md) | [简体中文](README_zh-CN.md) | 日本語
 
 <img src="./docs/images/banner.png" width="320px"  alt="PDF2ZH"/>  
 
@@ -19,8 +19,12 @@
     <img src="https://img.shields.io/github/license/Byaidu/PDFMathTranslate"/></a>
   <a href="https://huggingface.co/spaces/reycn/PDFMathTranslate-Docker">
     <img src="https://img.shields.io/badge/%F0%9F%A4%97-Online%20Demo-FF9E0D"/></a>
+  <a href="https://www.modelscope.cn/studios/AI-ModelScope/PDFMathTranslate">
+    <img src="https://img.shields.io/badge/ModelScope-Demo-blue"></a>
   <a href="https://github.com/Byaidu/PDFMathTranslate/pulls">
     <img src="https://img.shields.io/badge/contributions-welcome-green"/></a>
+  <a href="https://gitcode.com/Byaidu/PDFMathTranslate/overview">
+    <img src="https://gitcode.com/Byaidu/PDFMathTranslate/star/badge.svg"></a>
   <a href="https://t.me/+Z9_SgnxmsmA5NzBl">
     <img src="https://img.shields.io/badge/Telegram-2CA5E0?style=flat-squeare&logo=telegram&logoColor=white"/></a>
 </p>
@@ -61,14 +65,20 @@
 
 インストールなしで [公共サービス](https://pdf2zh.com/) をオンラインで試すことができます。  
 
-### Hugging Face デモ
+### デモ
 
-インストールなしで [HuggingFace上のデモ](https://huggingface.co/spaces/reycn/PDFMathTranslate-Docker) を試すことができます。
+インストールなしで [HuggingFace上のデモ](https://huggingface.co/spaces/reycn/PDFMathTranslate-Docker), [ModelScope上のデモ](https://www.modelscope.cn/studios/AI-ModelScope/PDFMathTranslate) を試すことができます。
 デモの計算リソースは限られているため、乱用しないようにしてください。
 
 <h2 id="install">インストールと使用方法</h2>
 
 このプロジェクトを使用するための4つの方法を提供しています：[コマンドライン](#cmd)、[ポータブル](#portable)、[GUI](#gui)、および [Docker](#docker)。
+
+pdf2zhの実行には追加モデル（`wybxc/DocLayout-YOLO-DocStructBench-onnx`）が必要です。このモデルはModelScopeでも見つけることができます。起動時にこのモデルのダウンロードに問題がある場合は、以下の環境変数を使用してください：
+
+```shell
+set HF_ENDPOINT=https://hf-mirror.com
+```
 
 <h3 id="cmd">方法1. コマンドライン</h3>
 
@@ -89,7 +99,7 @@
 
 Python環境を事前にインストールする必要はありません
 
-[setup.bat](https://raw.githubusercontent.com/Byaidu/PDFMathTranslate/refs/heads/main/setup.bat) をダウンロードしてダブルクリックして実行します
+[setup.bat](https://raw.githubusercontent.com/Byaidu/PDFMathTranslate/refs/heads/main/script/setup.bat) をダウンロードしてダブルクリックして実行します
 
 <h3 id="gui">方法3. GUI</h3>
 
@@ -164,7 +174,9 @@ Python環境を事前にインストールする必要はありません
 | `-t`  | [マルチスレッド](#threads) | `pdf2zh example.pdf -t 1` |
 | `-o`  | 出力ディレクトリ | `pdf2zh example.pdf -o output` |
 | `-f`, `-c` | [例外](#exceptions) | `pdf2zh example.pdf -f "(MS.*)"` |
-| `--share` | gradio公開リンクを取得 | `pdf2zh -i --share` |
+| `--share` | [gradio公開リンクを取得] | `pdf2zh -i --share` |
+| `--authorized` | [ウェブ認証とカスタム認証ページの追加] | `pdf2zh -i --authorized users.txt [auth.html]` |
+| `--prompt` | [カスタムビッグモデルのプロンプトを使用する] | `pdf2zh --prompt [prompt.txt]` |
 
 <h3 id="partial">全文または部分的なドキュメント翻訳</h3>
 
@@ -196,16 +208,19 @@ pdf2zh example.pdf -li en -lo ja
 |-|-|-|-|-|
 |**Google (Default)**|`google`|None|N/A|None|
 |**Bing**|`bing`|None|N/A|None|
-|**DeepL**|`deepl`|`DEEPL_SERVER_URL`,`DEEPL_AUTH_KEY`|`https://api.deepl.com`, `[Your Key]`|See [DeepL](https://support.deepl.com/hc/en-us/articles/360020695820-API-Key-for-DeepL-s-API)|
+|**DeepL**|`deepl`|`DEEPL_AUTH_KEY`|`[Your Key]`|See [DeepL](https://support.deepl.com/hc/en-us/articles/360020695820-API-Key-for-DeepL-s-API)|
 |**DeepLX**|`deeplx`|`DEEPLX_ENDPOINT`|`https://api.deepl.com/translate`|See [DeepLX](https://github.com/OwO-Network/DeepLX)|
 |**Ollama**|`ollama`|`OLLAMA_HOST`, `OLLAMA_MODEL`|`http://127.0.0.1:11434`, `gemma2`|See [Ollama](https://github.com/ollama/ollama)|
 |**OpenAI**|`openai`|`OPENAI_BASE_URL`, `OPENAI_API_KEY`, `OPENAI_MODEL`|`https://api.openai.com/v1`, `[Your Key]`, `gpt-4o-mini`|See [OpenAI](https://platform.openai.com/docs/overview)|
 |**AzureOpenAI**|`azure-openai`|`AZURE_OPENAI_BASE_URL`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_MODEL`|`[Your Endpoint]`, `[Your Key]`, `gpt-4o-mini`|See [Azure OpenAI](https://learn.microsoft.com/zh-cn/azure/ai-services/openai/chatgpt-quickstart?tabs=command-line%2Cjavascript-keyless%2Ctypescript-keyless%2Cpython&pivots=programming-language-python)|
 |**Zhipu**|`zhipu`|`ZHIPU_API_KEY`, `ZHIPU_MODEL`|`[Your Key]`, `glm-4-flash`|See [Zhipu](https://open.bigmodel.cn/dev/api/thirdparty-frame/openai-sdk)|
+| **ModelScope**       | `ModelScope`   |`MODELSCOPE_API_KEY`, `MODELSCOPE_MODEL`|`[Your Key]`, `Qwen/Qwen2.5-Coder-32B-Instruct`| See [ModelScope](https://www.modelscope.cn/docs/model-service/API-Inference/intro)|
 |**Silicon**|`silicon`|`SILICON_API_KEY`, `SILICON_MODEL`|`[Your Key]`, `Qwen/Qwen2.5-7B-Instruct`|See [SiliconCloud](https://docs.siliconflow.cn/quickstart)|
 |**Gemini**|`gemini`|`GEMINI_API_KEY`, `GEMINI_MODEL`|`[Your Key]`, `gemini-1.5-flash`|See [Gemini](https://ai.google.dev/gemini-api/docs/openai)|
 |**Azure**|`azure`|`AZURE_ENDPOINT`, `AZURE_API_KEY`|`https://api.translator.azure.cn`, `[Your Key]`|See [Azure](https://docs.azure.cn/en-us/ai-services/translator/text-translation-overview)|
 |**Tencent**|`tencent`|`TENCENTCLOUD_SECRET_ID`, `TENCENTCLOUD_SECRET_KEY`|`[Your ID]`, `[Your Key]`|See [Tencent](https://www.tencentcloud.com/products/tmt?from_qcintl=122110104)|
+|**Dify**|`dify`|`DIFY_API_URL`, `DIFY_API_KEY`|`[Your DIFY URL]`, `[Your Key]`|See [Dify](https://github.com/langgenius/dify),Three variables, lang_out, lang_in, and text, need to be defined in Dify's workflow input.|
+|**AnythingLLM**|`anythingllm`|`AnythingLLM_URL`, `AnythingLLM_APIKEY`|`[Your AnythingLLM URL]`, `[Your Key]`|See [anything-llm](https://github.com/Mintplex-Labs/anything-llm)|
 
 `-s service` または `-s service:model` を使用してサービスを指定します：
 
@@ -242,6 +257,35 @@ pdf2zh example.pdf -f "(CM[^R]|(MS|XY|MT|BL|RM|EU|LA|RS)[A-Z]|LINE|LCIRCLE|TeX-|
 pdf2zh example.pdf -t 1
 ```
 
+<h3 id="prompt">custom prompt</h3>
+(need Japenese translation)
+Use `--prompt` to specify which prompt to use in llm:
+```bash
+pdf2zh example.pdf -pr prompt.txt
+```
+
+
+example prompt.txt
+```
+[
+    {
+        "role": "system",
+        "content": "You are a professional,authentic machine translation engine.",
+    },
+    {
+        "role": "user",
+        "content": "Translate the following markdown source text to ${lang_out}. Keep the formula notation {{v*}} unchanged. Output translation directly without any additional text.\nSource Text: ${text}\nTranslated Text:",
+    },
+]
+```
+
+
+In custom prompt file, there are three variables can be used.
+|**variables**|**comment**|
+|-|-|
+|`lang_in`|input language|
+|`lang_out`|output language|
+|`text`|text need to be translated|
 <h2 id="todo">API</h2>
 
 ### Python
@@ -264,8 +308,7 @@ pdf2zh --celery worker
 ```
 
 ```bash
-curl http://localhost:11008/v1/translate -F "file=@example.pdf" -F "data={\"lang_in\":\"en\",\"l
-ang_out\":\"zh\",\"service\":\"google\",\"thread\":4}"
+curl http://localhost:11008/v1/translate -F "file=@example.pdf" -F "data={\"lang_in\":\"en\",\"lang_out\":\"zh\",\"service\":\"google\",\"thread\":4}"
 {"id":"d9894125-2f4e-45ea-9d93-1a9068d2045a"}
 
 curl http://localhost:11008/v1/translate/d9894125-2f4e-45ea-9d93-1a9068d2045a
@@ -288,6 +331,8 @@ curl http://localhost:11008/v1/translate/d9894125-2f4e-45ea-9d93-1a9068d2045a -X
 - ドキュメントの解析：[Pdfminer.six](https://github.com/pdfminer/pdfminer.six)
 
 - ドキュメントの抽出：[MinerU](https://github.com/opendatalab/MinerU)
+
+- ドキュメントプレビュー：[Gradio PDF](https://github.com/freddyaboulton/gradio-pdf)
 
 - マルチスレッド翻訳：[MathTranslate](https://github.com/SUSYUSTC/MathTranslate)
 
